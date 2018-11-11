@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/scalapb/scalapb-plugin-template.g8.svg?branch=master)](https://travis-ci.org/scalapb/scalapb-plugin-template.g8)
+
 # Giter8 template for ScalaPB plugins
 
 Do you want to write your own proto code generator in Scala? Do you
