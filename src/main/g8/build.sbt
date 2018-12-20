@@ -6,11 +6,17 @@ lazy val root = (project in file("."))
     .enablePlugins(ScriptedPlugin)
     .settings(
         crossScalaVersions in ThisBuild := Seq(Scala210, Scala212),
-
+        resolvers += Resolver.typesafeIvyRepo("releases"),
         organization := "$organization$",
 
         name := "$name$",
 
+        scriptedSbt := {
+          scalaBinaryVersion.value match {
+                  case "2.10" => "0.13.7"
+                  case "2.12" => "1.2.7"
+          }
+        },
         libraryDependencies ++= Seq(
             "com.thesamet.scalapb" %% "compilerplugin" % "$scalapb_version$"
         ),
