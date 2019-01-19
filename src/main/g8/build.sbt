@@ -1,6 +1,6 @@
 val Scala210 = "2.10.7"
 
-val Scala212 = "2.12.7"
+val Scala212 = "2.12.8"
 
 lazy val root = (project in file("."))
     .enablePlugins(ScriptedPlugin)
@@ -13,8 +13,8 @@ lazy val root = (project in file("."))
 
         scriptedSbt := {
           scalaBinaryVersion.value match {
-                  case "2.10" => "0.13.7"
-                  case "2.12" => "1.2.7"
+                  case "2.10" => "0.13.8"
+                  case "2.12" => "1.2.8"
           }
         },
         libraryDependencies ++= Seq(
