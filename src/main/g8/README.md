@@ -1,22 +1,28 @@
 # $name$
 
-To test the generator, within SBT:
+A Protoc plugin that generates...
+
+To test the plugin, within SBT:
 
 ```
-> scripted
+> e2e/test
 ```
 
-This would publish your generator locally and run it over a test project
-located under `src/sbt-test/generator/e2e`.
+# Using the plugin
 
-Assuming that the plugin If you would like to test the test project without republishing the plugin
-each time (assuming it does not change), then publish it locally using
-`publishLocal`, then in `src/sbt-test` run SBT and pass it the version number,
-for example:
+To add the plugin to another project, you need publish it first on maven, or publish locally by using `+publishLocal`.
+
+In the other project, add the following to `project/plugins.sbt`:
 
 ```
-cd src/sbt-test/generator/e2e`
-sbt -Dplugin.version=0.1.0-SNAPSHOT
+addSbtPlugin("com.thesamet" % "sbt-protoc" % "$sbt_protoc$")
 
-> test
+libraryDependencies += "$organization$" %% "$name$" % "0.1.0"
+```
+
+and the following to your `build.sbt`:
+```
+PB.targets in Compile := Seq(
+  $package$.Generator -> (sourceManaged in Compile).value
+)
 ```
