@@ -1,57 +1,63 @@
-val Scala210 = "2.10.7"
+val Scala213 = "2.13.2"
 
 val Scala212 = "2.12.10"
 
-ThisBuild / scalaVersion := Scala212
+ThisBuild / organization := "com.example"
 
-lazy val generator = (project in file("generator"))
-  .enablePlugins(AssemblyPlugin)
+ThisBuild / scalaVersion := Scala213
+
+lazy val core = (projectMatrix in file("core"))
   .settings(
-      crossScalaVersions in ThisBuild := Seq(Scala212, Scala210),
+    name := "$name;format="norm"$-core"
+  )
+  .jvmPlatform(scalaVersions = Seq(Scala212, Scala213))
 
-      organization := "$organization$",
+lazy val codeGen = (projectMatrix in file("code-gen"))
+  .enablePlugins(BuildInfoPlugin)
+  .settings(
+     buildInfoKeys := Seq[BuildInfoKey](name, organization, version, scalaVersion, sbtVersion),
+     buildInfoPackage := "$package$.compiler",
+     libraryDependencies ++= Seq(
+       "com.thesamet.scalapb" %% "compilerplugin" % scalapb.compiler.Version.scalapbVersion,
+       "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion,
+     )
+  )
+  .jvmPlatform(scalaVersions = Seq(Scala212, Scala213))
 
-      name := "$name$",
+lazy val codeGenJVM212 = codeGen.jvm(Scala212)
 
-      libraryDependencies ++= Seq(
-          "com.thesamet.scalapb" %% "compilerplugin" % scalapb.compiler.Version.scalapbVersion
-      ),
-
-      assemblyOption in assembly := (assemblyOption in assembly).value.copy(
-        prependShellScript = Some(sbtassembly.AssemblyPlugin.defaultUniversalScript(shebang = !isWindows))
-      ),
-
-      Compile / mainClass := Some("$package$.Main")
+lazy val protocGen$name;format="Camel"$ = protocGenProject("protoc-gen-$name;format="norm"$", codeGenJVM212)
+  .settings(
+    Compile / mainClass := Some("$package$.compiler.CodeGenerator")
   )
 
-def isWindows: Boolean = sys.props("os.name").startsWith("Windows")
-
-// The e2e project exercises the generator. We need to use the generator project above to generate
-// code for this project. To accomplish that, we use the assembly task to create a fat jar of the
-// generator, and provide this to sbt-protoc as a plugin.
-lazy val e2e = (project in file("e2e"))
-.settings(
-    libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.5" % "test",
-
-    // Makes the e2e project depends on assembling the generator
-    Compile / PB.generate := ((Compile / PB.generate) dependsOn (generator / Compile / assembly)).value,
-
-    // Regenerates protos on each compile even if they have not changed. This is so changes in the plugin
-    // are picked up without having to manually clean.
-    Compile / PB.recompile := true,
-
-    Compile / PB.targets := Seq(
-      scalapb.gen() -> (sourceManaged in Compile).value,
-
-      // Creates a target using the assembled
-      protocbridge.Target(
-        generator=PB.gens.plugin(
-          "mygen",
-          (generator / assembly / target).value / "$name$-assembly-" + version.value + ".jar"
-        ),
-        outputPath=(Compile / sourceManaged).value,
-        options=Seq("grpc", "java_conversions")
-      )
+lazy val e2e = (projectMatrix in file("e2e"))
+  .dependsOn(core)
+  .enablePlugins(LocalCodeGenPlugin)
+  .settings(
+    skip in publish := true,
+    codeGenClasspath := (codeGenJVM212 / Compile / fullClasspath).value,
+    libraryDependencies ++= Seq(
+      "org.scalameta" %% "munit" % "0.7.9" % Test
     ),
+    testFrameworks += new TestFramework("munit.Framework"),
+    PB.targets in Compile := Seq(
+      scalapb.gen() -> (sourceManaged in Compile).value / "scalapb",
+      genModule("$package$.compiler.CodeGenerator\$") -> (sourceManaged in Compile).value / "scalapb"
+    )
+  )
+  .jvmPlatform(scalaVersions = Seq(Scala212, Scala213))
 
-)
+lazy val root: Project =
+  project
+    .in(file("."))
+    .settings(
+      publishArtifact := false,
+      publish := {},
+      publishLocal := {}
+    )
+    .aggregate(protocGen$name;format="Camel"$.agg)
+    .aggregate(
+      codeGen.projectRefs ++
+      core.projectRefs: _*
+    )
