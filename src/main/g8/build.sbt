@@ -28,7 +28,8 @@ lazy val codeGenJVM212 = codeGen.jvm(Scala212)
 
 lazy val protocGen$name;format="Camel"$ = protocGenProject("protoc-gen-$name;format="norm"$", codeGenJVM212)
   .settings(
-    Compile / mainClass := Some("$package$.compiler.CodeGenerator")
+    Compile / mainClass := Some("$package$.compiler.CodeGenerator"),
+    scalaVersion := Scala212
   )
 
 lazy val e2e = (projectMatrix in file("e2e"))
