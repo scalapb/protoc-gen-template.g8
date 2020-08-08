@@ -9,7 +9,7 @@ Let's get started!
 In a terminal, type:
 
 ```
-sbt new scalapb/scalapb-plugin-template.g8
+sbt new scalapb/protoc-gen-template.g8
 ```
 
 Once the project is generated, you will find additional usage instructions in
