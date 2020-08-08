@@ -1,4 +1,4 @@
-# Giter8 template for ScalaPB plugins
+# Template for Protoc plugins in Scala
 
 Do you want to write your own proto code generator in Scala? Do you
 want to (optionally) integrate it with ScalaPB? This template does exactly
