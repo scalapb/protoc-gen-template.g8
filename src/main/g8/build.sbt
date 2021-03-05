@@ -7,6 +7,7 @@ ThisBuild / organization := "com.example"
 ThisBuild / scalaVersion := Scala213
 
 lazy val core = (projectMatrix in file("core"))
+  .defaultAxes()
   .settings(
     name := "$name;format="norm"$-core"
   )
@@ -14,6 +15,7 @@ lazy val core = (projectMatrix in file("core"))
 
 lazy val codeGen = (projectMatrix in file("code-gen"))
   .enablePlugins(BuildInfoPlugin)
+  .defaultAxes()
   .settings(
      buildInfoKeys := Seq[BuildInfoKey](name, organization, version, scalaVersion, sbtVersion),
      buildInfoPackage := "$package$.compiler",
@@ -35,6 +37,7 @@ lazy val protocGen$name;format="Camel"$ = protocGenProject("protoc-gen-$name;for
 lazy val e2e = (projectMatrix in file("e2e"))
   .dependsOn(core)
   .enablePlugins(LocalCodeGenPlugin)
+  .defaultAxes()
   .settings(
     skip in publish := true,
     codeGenClasspath := (codeGenJVM212 / Compile / fullClasspath).value,
