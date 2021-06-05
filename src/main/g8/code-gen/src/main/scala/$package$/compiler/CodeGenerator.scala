@@ -43,7 +43,7 @@ object CodeGenerator extends CodeGenApp {
             file <- request.filesToGenerate
             message <- file.getMessageTypes().asScala
           } yield new MessagePrinter(message, implicits).result
-	    )
+      )
       case Left(error)   =>
         CodeGenResponse.fail(error)
     }
@@ -86,6 +86,6 @@ class MessagePrinter(message: Descriptor, implicits: DescriptorImplicits) {
       s"package \${message.getFile.scalaPackage.fullName}",
       "",
     ).call(printObject)
-    fp.result
+    fp.result()
   }
 }
